@@ -19,6 +19,8 @@ namespace Rect2D
         List<Contact> ActualContacts = new List<Contact>();
         public int AddRectangle(PhysicsRectangle a)
         {
+            if (a.Hit == null)
+                a.Hit = new object[4];
             return PhysicsRectangles.Add(a);
         }
 
@@ -51,7 +53,18 @@ namespace Rect2D
         {
             PossibleContacts.Clear();
             ActualContacts.Clear();
-            for(int i = 0; i < PhysicsRectangles.Count; i++)
+
+            //for (int i = 0; i < PhysicsRectangles.Count; i++)
+            //{
+            //    PhysicsRectangle a = PhysicsRectangles[i];
+            //    for (int j = 0; j < 4; i++)
+            //    {
+            //        a.Hit[j] = null;
+            //    }
+            //    PhysicsRectangles[i] = a;
+            //}
+
+            for (int i = 0; i < PhysicsRectangles.Count; i++)
             {
                 for (int j = 0; j < PhysicsRectangles.Count; j++)
                 {
@@ -60,11 +73,28 @@ namespace Rect2D
                         PhysicsRectangle a = PhysicsRectangles[i];
                         PhysicsRectangle b = PhysicsRectangles[j];
 
-                        a.X = a.X + (a.VelX * Delta);
-                        a.Y = a.Y + (a.VelY * Delta);
+                        float AMinX = Math.Min(a.X, a.X + (a.VelX * Delta));
+                        float AMinY = Math.Min(a.Y, a.Y + (a.VelY * Delta));
 
-                        b.X = b.X + (b.VelX * Delta);
-                        b.Y = b.Y + (b.VelY * Delta);
+                        float AMaxX = Math.Max(a.X + a.SizeX, a.X + a.SizeX + (a.VelX * Delta));
+                        float AMaxY = Math.Max(a.Y + a.SizeY, a.Y + a.SizeY + (a.VelY * Delta));
+
+                        float BMinX = Math.Min(b.X, b.X + (b.VelX * Delta));
+                        float BMinY = Math.Min(b.Y, b.Y + (b.VelY * Delta));
+
+                        float BMaxX = Math.Max(b.X + b.SizeX, b.X + b.SizeX + (b.VelX * Delta));
+                        float BMaxY = Math.Max(b.Y + b.SizeY, b.Y + b.SizeY + (b.VelY * Delta));
+
+                        a.SizeX = Math.Abs(AMaxX - AMinX);
+                        a.SizeY = Math.Abs(AMaxY - AMinY);
+                        a.X = AMinX;
+                        a.Y = AMinY;
+
+                        b.SizeX = Math.Abs(BMaxX - BMinX);
+                        b.SizeY = Math.Abs(BMaxY - BMinY);
+                        b.X = BMinX;
+                        b.Y = BMinY;
+
 
                         if (CollisionUtils.RectangleIntersect(a, b))
                         {
@@ -118,7 +148,6 @@ namespace Rect2D
                     a.VelY += c.NY * Math.Abs(a.VelY) * (1 - c.TimeOfContact);
 
                     PhysicsRectangles[PossibleContacts[i].Item1] = a;
-                    PhysicsRectangles[PossibleContacts[i].Item2] = b;
                     ActualContacts.Add(c);
                 }
                 else
@@ -126,17 +155,6 @@ namespace Rect2D
                     PossibleContacts.RemoveAt(i);
                 }
             }
-        }
-
-        bool ContainsRectangle(int colID)
-        {
-            for (int i = 0; i < PossibleContacts.Count; i++)
-            {
-                if ((PossibleContacts[i].Item1 == colID) || ((PossibleContacts[i].Item2 == colID)))
-                    return true;
-
-            }
-            return false;
         }
 
         void UpdatePosition(float Delta)
@@ -154,8 +172,7 @@ namespace Rect2D
                         a.VelX += (GravityX * Delta);
                         a.VelY += (GravityY * Delta);
                     }
-
-                    if (ContainsRectangle(i))
+                    else
                     {
                         a.VelX *= a.Friction;
                         a.VelY *= a.Friction;

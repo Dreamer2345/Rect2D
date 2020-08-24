@@ -14,7 +14,7 @@ namespace Rect2DTesting
 
         static void Main(string[] args)
         {
-            World physicsWorld = new World();
+            Rect2DWorld physicsWorld = new Rect2DWorld();
             physicsWorld.GravityY = 1;
             int Box1 = physicsWorld.AddRectangle(new PhysicsRectangle() { X = 0, Y = 0, SizeX = 10, SizeY = 10, VelX = 0, VelY = 0, Mass = 1, Friction = 0.98f, Parent = 0 });
             int Box2 = physicsWorld.AddRectangle(new PhysicsRectangle() { X = 0, Y = 20, SizeX = 10, SizeY = 10, VelX = 0, VelY = 0 , Mass = -1, Parent = 1});

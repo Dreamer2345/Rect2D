@@ -38,5 +38,10 @@ namespace Rect2D
             Hit = new object[4];
         }
 
+        public PhysicsRectangle Clone()
+        {
+            return (PhysicsRectangle)this.MemberwiseClone();
+        }
+
     }
 }
